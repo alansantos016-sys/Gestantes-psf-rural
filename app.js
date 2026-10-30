@@ -5,7 +5,7 @@ const categories={consulta:"consultas",exame:"exames",medicamento:"medicamentos"
 const labels={consulta:"Consulta",exame:"Exame",medicamento:"Medicamento",encaminhamento:"Encaminhamento"};
 const digits=v=>(v||"").replace(/\D/g,"");
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const today=()=>new Date().toISOString().slice(0,10);
+const today=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");};
 function ageGest(p){if(p.dum){const d=Math.floor((new Date(today()+"T12:00:00")-new Date(p.dum+"T12:00:00"))/86400000);if(d>=0)return {weeks:Math.floor(d/7),days:d%7};}if(p.weeks!==""&&p.weeks!=null)return {weeks:Number(p.weeks),days:Number(p.days||0)};return null;}
 function trimester(a){return !a?"":a.weeks<14?"1":a.weeks<28?"2":"3";}
 function dateBR(v){if(!v)return "Não informado";const [y,m,d]=v.split("-");return d+"/"+m+"/"+y;}
