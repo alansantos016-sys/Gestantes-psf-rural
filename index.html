@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#176b5b">
+  <meta name="description" content="Protótipo de apoio ao acompanhamento pré-natal da UBS.">
+  <title>Gestantes PSF rural</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand-mark" aria-hidden="true">♡</div>
+    <div><strong>Gestantes</strong><span>PSF rural · Apoio ao pré-natal</span></div>
+    <button id="installBtn" class="icon-button" hidden aria-label="Instalar aplicativo">＋</button>
+  </header>
+  <main class="container">
+    <section class="notice" role="note">
+      <strong>Protótipo de avaliação</strong>
+      <p>Não insira dados reais de pacientes nesta versão. Os registros ficam apenas temporariamente nesta sessão e são apagados ao atualizar ou fechar a página. Ainda não há banco de dados seguro nem validação clínica completa do protocolo.</p>
+    </section>
+    <section class="welcome">
+      <div><p class="eyebrow">PAINEL DA UNIDADE</p><h1>Acompanhamento das gestantes</h1><p class="muted">Organize cadastros, consultas e pendências em um só lugar.</p></div>
+      <button id="newBtn" class="primary">＋ Nova gestante</button>
+    </section>
+    <section class="stats" aria-label="Indicadores">
+      <article class="stat"><span>Gestantes cadastradas</span><strong id="totalCount">0</strong></article>
+      <article class="stat"><span>Pré-natal em acompanhamento</span><strong id="activeCount">0</strong></article>
+      <article class="stat"><span>Parto realizado</span><strong id="birthCount">0</strong></article>
+    </section>
+    <section class="panel">
+      <div class="panel-heading"><div><p class="eyebrow">LOCALIZAÇÃO RÁPIDA</p><h2>Gestantes da unidade</h2></div><span id="resultCount" class="result-count">0 resultados</span></div>
+      <div class="filters">
+        <label class="search-field">Buscar por nome, CPF ou CNS<input id="searchInput" type="search" placeholder="Digite para buscar…"></label>
+        <label>Classificação de risco<select id="riskFilter"><option value="">Todas</option><option>Risco habitual</option><option>Risco intermediário</option><option>Alto risco</option><option>Não avaliado</option></select></label>
+        <label>Trimestre<select id="trimesterFilter"><option value="">Todos</option><option value="1">1º trimestre</option><option value="2">2º trimestre</option><option value="3">3º trimestre</option></select></label>
+        <label>Situação<select id="statusFilter"><option value="">Todas</option><option value="Ativa">Pré-natal ativo</option><option value="Parto realizado">Parto realizado</option><option value="Transferida">Transferida</option><option value="Encerrada">Encerrada</option></select></label>
+      </div>
+      <div id="emptyState" class="empty"><div class="empty-icon">♡</div><h3>Nenhuma gestante cadastrada</h3><p>Quando os cadastros forem adicionados, eles aparecerão aqui e poderão ser filtrados.</p><button class="primary" id="emptyNewBtn">Cadastrar primeira gestante</button></div>
+      <div id="tableWrap" class="table-wrap" hidden><table><thead><tr><th>Gestante</th><th>Idade gestacional</th><th>Risco registrado</th><th>Situação</th></tr></thead><tbody id="patientRows"></tbody></table></div>
+    </section>
+    <footer>Gestantes PSF rural <span>· Protótipo inicial</span></footer>
+  </main>
+  <dialog id="patientDialog">
+    <form id="patientForm" method="dialog">
+      <div class="dialog-head"><div><p class="eyebrow">NOVO CADASTRO</p><h2>Identificação da gestante</h2></div><button type="button" class="close" id="closeDialog" aria-label="Fechar">×</button></div>
+      <div class="form-grid">
+        <label class="wide">Nome completo *<input name="name" required autocomplete="name" maxlength="140"></label>
+        <label>CPF<input name="cpf" inputmode="numeric" maxlength="14" placeholder="000.000.000-00"></label>
+        <label>Cartão SUS (CNS)<input name="cns" inputmode="numeric" maxlength="18" placeholder="15 dígitos"></label>
+        <label>Data de nascimento<input name="birthDate" type="date"></label>
+        <label>Telefone<input name="phone" type="tel" placeholder="(00) 00000-0000"></label>
+        <label class="wide">Endereço / comunidade<input name="address" maxlength="180"></label>
+        <label>DUM<input name="dum" type="date"></label>
+        <label>DPP<input name="dpp" type="date"></label>
+        <label>Idade gestacional (semanas)<input name="weeks" type="number" min="0" max="45" placeholder="Ex.: 12"></label>
+        <label>Dias adicionais<input name="days" type="number" min="0" max="6" value="0"></label>
+        <label>Risco registrado<select name="risk"><option>Não avaliado</option><option>Risco habitual</option><option>Risco intermediário</option><option>Alto risco</option></select></label>
+        <label>Situação<select name="status"><option>Ativa</option><option>Parto realizado</option><option>Transferida</option><option>Encerrada</option></select></label>
+      </div>
+      <p class="form-note">O risco nesta versão é apenas um campo de registro manual. A classificação automática será implementada após conferência integral dos critérios e da versão vigente do protocolo estadual.</p>
+      <div class="dialog-actions"><button type="button" class="secondary" id="cancelBtn">Cancelar</button><button type="submit" class="primary">Adicionar ao painel</button></div>
+    </form>
+  </dialog>
+  <script src="app.js"></script>
+</body>
+</html>
