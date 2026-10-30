@@ -18,13 +18,13 @@
   <main class="container">
     <section class="notice" role="note">
       <strong>Protótipo de avaliação</strong>
-      <p>Não insira dados reais de pacientes nesta versão. Os registros ficam apenas temporariamente nesta sessão e são apagados ao atualizar ou fechar a página. Ainda não há banco de dados seguro nem validação clínica completa do protocolo.</p>
+      <p>Não insira dados reais de pacientes nesta versão. Os cadastros são salvos no armazenamento local deste aparelho. O backup no Google Drive será criptografado com uma senha definida pela usuária. Não use dados reais até concluir a configuração do Google OAuth, validar a segurança e obter autorização institucional.</p>
     </section>
     <section class="welcome">
       <div><p class="eyebrow">PAINEL DA UNIDADE</p><h1>Acompanhamento das gestantes</h1><p class="muted">Organize cadastros, consultas e pendências em um só lugar.</p></div>
       <button id="newBtn" class="primary">＋ Nova gestante</button>
     </section>
-    <section class="stats" aria-label="Indicadores">
+    <section class="sync-panel panel"><div><strong>Backup e sincronização</strong><p id="syncStatus" class="muted">Carregando armazenamento…</p></div><div class="sync-actions"><button id="backupBtn" class="primary">Enviar backup ao Drive</button><button id="restoreBtn" class="secondary">Restaurar do Drive</button></div></section>\n    <section class="stats" aria-label="Indicadores">
       <article class="stat"><span>Gestantes cadastradas</span><strong id="totalCount">0</strong></article>
       <article class="stat"><span>Pré-natal em acompanhamento</span><strong id="activeCount">0</strong></article>
       <article class="stat"><span>Parto realizado</span><strong id="birthCount">0</strong></article>
@@ -63,6 +63,6 @@
       <div class="dialog-actions"><button type="button" class="secondary" id="cancelBtn">Cancelar</button><button type="submit" class="primary">Adicionar ao painel</button></div>
     </form>
   </dialog>
-  <script src="app.js"></script>
+  <script src="config.js"></script>\n  <script src="https://accounts.google.com/gsi/client" async defer></script>\n  <script src="storage.js"></script>\n  <script src="google-drive.js"></script>\n  <script src="app.js"></script>
 </body>
 </html>
