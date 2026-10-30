@@ -11,6 +11,12 @@ Aplicativo PWA em desenvolvimento para apoiar o acompanhamento pré-natal de uma
 - Filtros por risco registrado, trimestre e situação.
 - Cálculo aproximado da idade gestacional pela DUM ou semanas/dias.
 - Ficha individual com resumo e histórico.
+- Histórico de consultas, incluindo agendamentos e situação.
+- Registro de exames e sinalização dos que estão pendentes.
+- Registro de medicamentos conforme prescrição informada, sem sugerir ou alterar doses.
+- Registro de encaminhamentos e situação do atendimento.
+- Painel de alertas para consultas próximas/atrasadas, exames e encaminhamentos pendentes.
+- Exportação de relatório geral em CSV.
 - Registro de consultas, exames, medicamentos e encaminhamentos.
 - Interface responsiva e estrutura PWA.
 
