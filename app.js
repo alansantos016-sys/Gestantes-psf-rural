@@ -74,7 +74,7 @@ $("#newBtn").addEventListener("click",newPatient);$("#emptyNewBtn").addEventList
 $("#editPatientBtn").addEventListener("click",()=>{const p=patients.find(x=>x.id===activePatientId);if(p)editPatient(p);});
 $("#patientRows").addEventListener("click",e=>{const row=e.target.closest("[data-open]");if(row){const p=patients.find(x=>x.id===row.dataset.open);if(p)profile(p);}});
 $("#profileTabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(!b)return;activeTab=b.dataset.tab;$("[data-tab]").forEach(x=>x.classList.toggle("active",x===b));renderProfile();});
-$("[data-add]").forEach(b=>b.addEventListener("click",()=>startRecord(b.dataset.add)));
+$$("[data-add]").forEach(b=>b.addEventListener("click",()=>startRecord(b.dataset.add)));
 $("#profileContent").addEventListener("click",e=>{const b=e.target.closest("[data-edit-record]");if(!b)return;const p=patients.find(x=>x.id===activePatientId);const type=b.dataset.recordType;const item=p?.[categories[type]]?.find(x=>x.id===b.dataset.editRecord);if(item)startRecord(type,item);});
 $$("[data-close]").forEach(b=>b.addEventListener("click",()=>closeById(b.dataset.close)));
 ["#searchInput","#riskFilter","#trimesterFilter","#statusFilter"].forEach(s=>$(s).addEventListener("input",render));
