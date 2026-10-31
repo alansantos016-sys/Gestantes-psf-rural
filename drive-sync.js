@@ -42,7 +42,7 @@
         },
         error_callback: error => reject(new Error(error?.message || "A janela de autorização foi fechada ou bloqueada."))
       });
-      client.requestAccessToken({ prompt: "" });
+      client.requestAccessToken();
     });
   }
 
