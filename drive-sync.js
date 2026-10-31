@@ -122,7 +122,11 @@
     let payload;
     try { payload = JSON.parse(new TextDecoder().decode(plain)); } catch { throw new Error("O conteúdo descriptografado está inválido."); }
     if (payload.format !== "gestantes-psf-rural-backup" || !Array.isArray(payload.patients)) throw new Error("O conteúdo do backup não tem a estrutura esperada.");
-    if (!payload.patients.every(p => p && typeof p.id === "string" && typeof p.name === "string")) throw new Error("O backup contém registros inválidos.");
+    if (!payload.patients.every(p => p && typeof p.id === "string" && p.id.trim() && typeof p.name === "string" && p.name.trim())) throw new Error("O backup contém registros sem identificador ou nome válido.");
+    const ids = payload.patients.map(p => p.id);
+    if (new Set(ids).size !== ids.length) throw new Error("O backup contém gestantes com identificadores duplicados. A restauração foi cancelada para evitar sobrescrever registros.");
+    const collections = ["consultas", "exames", "medicamentos", "encaminhamentos", "partos", "puerperio"];
+    if (!payload.patients.every(p => collections.every(key => p[key] === undefined || Array.isArray(p[key])))) throw new Error("O backup contém uma lista de registros em formato inválido.");
     return payload;
   }
 
