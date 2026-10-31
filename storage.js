@@ -13,12 +13,20 @@ window.PatientStore = (() => {
   async function transaction(mode, action) {
     const db=await openDb();
     return new Promise((resolve,reject)=>{
-      const tx=db.transaction(STORE,mode), store=tx.objectStore(STORE);
-      let result;
-      try { result=action(store); } catch(e) { reject(e); return; }
-      tx.oncomplete=()=>{db.close();resolve(result);};
-      tx.onerror=()=>{db.close();reject(tx.error);};
-      tx.onabort=()=>{db.close();reject(tx.error);};
+      let tx;
+      try {
+        tx=db.transaction(STORE,mode);
+        const store=tx.objectStore(STORE);
+        let result;
+        tx.oncomplete=()=>{db.close();resolve(result);};
+        tx.onerror=()=>{db.close();reject(tx.error||new Error("Falha na gravação do banco de dados."));};
+        tx.onabort=()=>{db.close();reject(tx.error||new Error("A gravação no banco de dados foi cancelada."));};
+        result=action(store);
+      } catch(e) {
+        try { if(tx && tx.readyState!=="done") tx.abort(); } catch {}
+        db.close();
+        reject(e);
+      }
     });
   }
   return {
