@@ -1,6 +1,6 @@
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const patientDialog=$("#patientDialog"),patientForm=$("#patientForm"),profileDialog=$("#profileDialog"),recordDialog=$("#recordDialog"),recordForm=$("#recordForm");
-let patients=[],activePatientId=null,activeTab="resumo",recordType=null;
+let patients=[],activePatientId=null,activeTab="resumo",recordType=null,editingPatientId=null;
 const categories={consulta:"consultas",exame:"exames",medicamento:"medicamentos",encaminhamento:"encaminhamentos"};
 const labels={consulta:"Consulta",exame:"Exame",medicamento:"Medicamento",encaminhamento:"Encaminhamento"};
 const digits=v=>(v||"").replace(/\D/g,"");
@@ -14,6 +14,18 @@ function closeById(id){const d=document.getElementById(id);if(d?.open)d.close();
 function persist(p){p.updatedAt=new Date().toISOString();return PatientStore.put(p);}
 function render(){const q=$("#searchInput").value.toLocaleLowerCase("pt-BR").trim(),risk=$("#riskFilter").value,tr=$("#trimesterFilter").value,status=$("#statusFilter").value;const filtered=patients.filter(p=>{const a=ageGest(p),hay=[p.name,p.cpf,p.cns,p.community].join(" ").toLocaleLowerCase("pt-BR");return(!q||hay.includes(q))&&(!risk||p.risk===risk)&&(!tr||trimester(a)===tr)&&(!status||p.status===status);});$("#totalCount").textContent=patients.length;$("#activeCount").textContent=patients.filter(p=>p.status==="Ativa").length;$("#birthCount").textContent=patients.filter(p=>p.status==="Parto realizado").length;renderAlerts();$("#resultCount").textContent=filtered.length+" resultado(s)";$("#emptyState").hidden=filtered.length>0;$("#tableWrap").hidden=!filtered.length;$("#patientRows").innerHTML=filtered.map(p=>{const a=ageGest(p);return `<tr class="patient-row" data-open="${p.id}"><td><strong>${esc(p.name)}</strong><br><span class="muted">${esc(p.community||p.address||"Comunidade não informada")}</span></td><td>${a?a.weeks+"s "+a.days+"d":"Não informado"}</td><td><span class="pill">${esc(p.risk||"Não avaliado")}</span></td><td>${esc(p.status||"Ativa")}</td></tr>`;}).join("");}
 function profile(p){activePatientId=p.id;$("#profileName").textContent=p.name;const a=ageGest(p);$("#profileSubtitle").textContent=(a?a.weeks+" semanas e "+a.days+" dias":"Idade gestacional não informada")+" · "+(p.risk||"Risco não avaliado");$("#profileSummary").innerHTML=`<div><span>CPF</span><strong>${esc(p.cpf||"Não informado")}</strong></div><div><span>CNS</span><strong>${esc(p.cns||"Não informado")}</strong></div><div><span>DUM / DPP</span><strong>${dateBR(p.dum)} / ${dateBR(p.dpp)}</strong></div><div><span>Situação</span><strong>${esc(p.status||"Ativa")}</strong></div>`;activeTab="resumo";$$("[data-tab]").forEach(b=>b.classList.toggle("active",b.dataset.tab===activeTab));renderProfile();showDialog(profileDialog);}
+function editPatient(p){
+  editingPatientId=p.id;
+  patientForm.reset();
+  for(const element of patientForm.elements){
+    if(!element.name)continue;
+    if(p[element.name]!==undefined&&p[element.name]!==null)element.value=p[element.name];
+  }
+  $("#patientDialog .dialog-head h2").textContent="Editar cadastro";
+  $("#patientDialog button[type=submit]").textContent="Salvar alterações";
+  closeById("profileDialog");
+  showDialog(patientDialog);
+}
 function recordList(items,type){if(!items?.length)return '<div class="empty small-empty"><p>Nenhum registro adicionado nesta seção.</p></div>';return '<div class="record-list">'+items.slice().sort((a,b)=>(b.date||"").localeCompare(a.date||"")).map(x=>`<article class="record-card"><div class="record-top"><strong>${esc(x.title||labels[type])}</strong><span>${dateBR(x.date)}</span></div>${x.status?'<p><b>Situação:</b> '+esc(x.status)+'</p>':''}${x.result?'<p><b>Resultado:</b> '+esc(x.result)+'</p>':''}${x.dose?'<p><b>Posologia registrada:</b> '+esc(x.dose)+'</p>':''}${x.destination?'<p><b>Destino:</b> '+esc(x.destination)+'</p>':''}${x.notes?'<p>'+esc(x.notes)+'</p>':''}</article>`).join("")+'</div>';}
 function renderProfile(){const p=patients.find(x=>x.id===activePatientId);if(!p)return;let html="";if(activeTab==="resumo"){html=`<div class="detail-grid"><section class="detail-card"><h3>Dados obstétricos</h3><p><b>Gestações:</b> ${esc(p.gravida||"Não informado")} · <b>Partos:</b> ${esc(p.para||"Não informado")} · <b>Abortos:</b> ${esc(p.abortions||"Não informado")}</p><p><b>Gestação:</b> ${esc(p.multiple||"Não informado")} · <b>Prematuridade anterior:</b> ${esc(p.previousPrematurity||"Não informado")}</p><p><b>Histórico:</b> ${esc(p.obstetricHistory||"Não informado")}</p></section><section class="detail-card"><h3>Histórico clínico</h3><p><b>Condições:</b> ${esc(p.conditions||"Não informado")}</p><p><b>Cirurgias/internações:</b> ${esc(p.surgeries||"Não informado")}</p><p><b>Medicamentos relatados:</b> ${esc(p.currentMeds||"Não informado")}</p><p><b>Alergias:</b> ${esc(p.allergies||"Não informado")}</p><p><b>Histórico familiar:</b> ${esc(p.familyHistory||"Não informado")}</p></section><section class="detail-card"><h3>Contato e território</h3><p>${esc(p.phone||"Telefone não informado")}</p><p>${esc(p.address||"Endereço não informado")}</p><p>${esc(p.community||"Comunidade não informada")} · ${esc(p.healthUnit||"Unidade não informada")}</p></section></div>`;}else{const key={consultas:"consultas",exames:"exames",medicamentos:"medicamentos",encaminhamentos:"encaminhamentos"}[activeTab];const type={consultas:"consulta",exames:"exame",medicamentos:"medicamento",encaminhamentos:"encaminhamento"}[activeTab];html=recordList(p[key]||[],type); }$("#profileContent").innerHTML=html;}
 function field(name,label,type="text",placeholder=""){return `<label>${label}<input name="${name}" type="${type}" ${placeholder?'placeholder="'+placeholder+'"':""}></label>`;}
@@ -23,9 +35,27 @@ function startRecord(type){recordType=type;recordForm.reset();$("#recordTitle").
 function renderAlerts(){const items=[];for(const p of patients){for(const c of p.consultas||[]){if(c.status==="Agendada"&&c.appointmentDate){const delta=Math.round((new Date(c.appointmentDate+"T12:00:00")-new Date(today()+"T12:00:00"))/86400000);if(delta<0)items.push({patient:p.name,text:"Consulta atrasada: "+(c.title||"pré-natal"),date:c.appointmentDate,kind:"atraso"});else if(delta<=7)items.push({patient:p.name,text:"Consulta próxima: "+(c.title||"pré-natal"),date:c.appointmentDate,kind:"proximo"});}}for(const x of p.exames||[]){if(["Pendente","Solicitado","Agendado"].includes(x.status))items.push({patient:p.name,text:"Exame "+(x.status||"pendente")+": "+(x.title||"sem descrição"),date:x.date,kind:"pendente"});}for(const x of p.encaminhamentos||[]){if(["Solicitado","Aguardando","Agendado"].includes(x.status))items.push({patient:p.name,text:"Encaminhamento "+x.status+": "+(x.title||"sem descrição"),date:x.date,kind:"pendente"});}}items.sort((a,b)=>(a.date||"9999").localeCompare(b.date||"9999"));$("#pendingCount").textContent=items.length;$("#alertsList").innerHTML=items.length?items.map(x=>`<div class="alert-item"><span class="alert-dot ${x.kind}"></span><div><strong>${esc(x.patient)}</strong><p>${esc(x.text)}</p></div><time>${dateBR(x.date)}</time></div>`).join(""):'<p class="muted">Nenhuma pendência identificada nos registros atuais.</p>';}
 function exportReport(){const rows=[["Gestante","CPF","CNS","DUM","DPP","Idade gestacional","Risco registrado","Situação","Comunidade","Consultas","Exames pendentes","Encaminhamentos em aberto"]];for(const p of patients){const a=ageGest(p);rows.push([p.name,p.cpf,p.cns,p.dum,p.dpp,a?a.weeks+"s "+a.days+"d":"",p.risk,p.status,p.community,(p.consultas||[]).length,(p.exames||[]).filter(x=>["Pendente","Solicitado","Agendado"].includes(x.status)).length,(p.encaminhamentos||[]).filter(x=>["Solicitado","Aguardando","Agendado"].includes(x.status)).length]);}const csv="\uFEFF"+rows.map(row=>row.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(";")).join("\r\n");const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));const link=document.createElement("a");link.href=url;link.download="relatorio-gestantes-"+today()+".csv";link.click();URL.revokeObjectURL(url);}
 $("#reportBtn").addEventListener("click",exportReport);
-patientForm.addEventListener("submit",async e=>{e.preventDefault();const p=Object.fromEntries(new FormData(patientForm).entries());p.id=crypto.randomUUID();p.cpf=digits(p.cpf);p.cns=digits(p.cns);p.consultas=[];p.exames=[];p.medicamentos=[];p.encaminhamentos=[];p.createdAt=new Date().toISOString();try{await persist(p);patients.push(p);patientForm.reset();closeById("patientDialog");render();}catch(err){alert("Não foi possível salvar o cadastro: "+err.message);}});
+patientForm.addEventListener("submit",async e=>{
+  e.preventDefault();
+  const data=Object.fromEntries(new FormData(patientForm).entries());
+  data.cpf=digits(data.cpf);data.cns=digits(data.cns);
+  const existing=editingPatientId?patients.find(x=>x.id===editingPatientId):null;
+  const p=existing?{...existing,...data}:{...data,id:crypto.randomUUID(),consultas:[],exames:[],medicamentos:[],encaminhamentos:[],createdAt:new Date().toISOString()};
+  try{
+    await persist(p);
+    if(existing){const index=patients.findIndex(x=>x.id===existing.id);patients[index]=p;}
+    else patients.push(p);
+    editingPatientId=null;patientForm.reset();
+    $("#patientDialog .dialog-head h2").textContent="Identificação e histórico";
+    $("#patientDialog button[type=submit]").textContent="Salvar cadastro";
+    closeById("patientDialog");render();
+    if(existing)profile(p);
+  }catch(err){alert("Não foi possível salvar o cadastro: "+err.message);}
+});
 recordForm.addEventListener("submit",async e=>{e.preventDefault();const p=patients.find(x=>x.id===activePatientId);if(!p||!recordType)return;const data=Object.fromEntries(new FormData(recordForm).entries());if(!data.date)data.date=today();p[categories[recordType]]=p[categories[recordType]]||[];p[categories[recordType]].push({id:crypto.randomUUID(),...data,createdAt:new Date().toISOString()});try{await persist(p);closeById("recordDialog");renderProfile();render();}catch(err){alert("Não foi possível salvar o registro: "+err.message);}});
-$("#newBtn").addEventListener("click",()=>showDialog(patientDialog));$("#emptyNewBtn").addEventListener("click",()=>showDialog(patientDialog));
+function newPatient(){editingPatientId=null;patientForm.reset();$("#patientDialog .dialog-head h2").textContent="Identificação e histórico";$("#patientDialog button[type=submit]").textContent="Salvar cadastro";showDialog(patientDialog);}
+$("#newBtn").addEventListener("click",newPatient);$("#emptyNewBtn").addEventListener("click",newPatient);
+$("#editPatientBtn").addEventListener("click",()=>{const p=patients.find(x=>x.id===activePatientId);if(p)editPatient(p);});
 $("#patientRows").addEventListener("click",e=>{const row=e.target.closest("[data-open]");if(row){const p=patients.find(x=>x.id===row.dataset.open);if(p)profile(p);}});
 $("#profileTabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(!b)return;activeTab=b.dataset.tab;$$("[data-tab]").forEach(x=>x.classList.toggle("active",x===b));renderProfile();});
 $$("[data-add]").forEach(b=>b.addEventListener("click",()=>startRecord(b.dataset.add)));
