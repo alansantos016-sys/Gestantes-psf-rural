@@ -20,6 +20,7 @@ Aplicativo PWA em desenvolvimento para apoiar o acompanhamento pré-natal de uma
 - Registro de encaminhamentos e situação do atendimento.
 - Painel de alertas para consultas próximas/atrasadas, exames e encaminhamentos pendentes.
 - Agenda futura de pré-natal por dia semanal de atendimento da UBS, com visualização dos próximos 30 dias, semana atual ou todas as previsões.
+- Calendário mensal com contagem de consultas previstas por dia e filtro da lista ao selecionar uma data.
 - Identificação de consultas agendadas em atraso e reagendamento com preservação do histórico da data anterior. As datas são previsões para conferência profissional e não substituem o agendamento clínico.
 - Exportação de relatório geral em CSV.
 - Registro de consultas, exames, medicamentos, encaminhamentos, parto e acompanhamento puerperal.
