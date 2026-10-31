@@ -81,3 +81,7 @@ A contagem diária considera tanto as previsões de consultas quanto os atendime
 
 ### Ocupação por dia
 A agenda exibe, por data do mês visível, as gestantes previstas e as que já possuem consulta marcada, indicando o limite configurado e as vagas restantes. O botão “Ver dia” filtra a agenda para a data selecionada. Se a quantidade exceder o limite, o dia recebe um destaque. O limite é um alerta administrativo e não substitui a avaliação da equipe.
+
+
+### Ajuste manual de data na ocupação
+Na lista de ocupação diária, a equipe pode escolher uma data manual para a próxima consulta prevista de uma gestante e salvar a alteração. As previsões automáticas seguintes são mantidas após a nova data. Consultas já registradas como agendadas devem ser alteradas pelo botão “Reagendar”, para preservar o histórico. As datas manuais são incluídas no backup criptografado junto das demais configurações da agenda.
