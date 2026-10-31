@@ -157,8 +157,8 @@ recordForm.addEventListener("submit",async e=>{
    const bookedDates=(p.consultas||[]).filter(c=>c.status==="Agendada"&&c.appointmentDate).map(c=>c.appointmentDate).sort();
    const latestBooked=bookedDates.length?bookedDates[bookedDates.length-1]:"";
    const currentManual=manualAppointments[p.id]||"";
-   if(latestBooked&&(!currentManual||latestBooked>currentManual))manualAppointments[p.id]=latestBooked;
-   else if(!latestBooked&&priorRecord?.appointmentDate&&currentManual===priorRecord.appointmentDate)delete manualAppointments[p.id];
+   if(latestBooked)manualAppointments[p.id]=latestBooked;
+   else if(priorRecord?.appointmentDate&&currentManual===priorRecord.appointmentDate)delete manualAppointments[p.id];
    saveManualAppointments();
   }
   editingRecordId=null;closeById("recordDialog");renderProfile();render();
