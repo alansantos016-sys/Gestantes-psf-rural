@@ -11,7 +11,7 @@ const labels={consulta:"Consulta",exame:"Exame",medicamento:"Medicamento",encami
 const digits=v=>(v||"").replace(/\D/g,"");
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const today=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");};
-function ageGest(p){if(p.dum){const d=Math.floor((new Date(today()+"T12:00:00")-new Date(p.dum+"T12:00:00"))/86400000);if(d>=0)return {weeks:Math.floor(d/7),days:d%7};}if(p.weeks!==""&&p.weeks!=null)return {weeks:Number(p.weeks),days:Number(p.days||0)};return null;}
+function gestationalDaysOn(p,date){if(p.dum){const diff=Math.floor((new Date(date+"T12:00:00")-new Date(p.dum+"T12:00:00"))/86400000);return diff>=0?diff:null;}if(p.weeks!==""&&p.weeks!=null&&p.gestationalAgeDate){const elapsed=Math.floor((new Date(date+"T12:00:00")-new Date(p.gestationalAgeDate+"T12:00:00"))/86400000);const total=Number(p.weeks)*7+Number(p.days||0)+elapsed;return total>=0?total:null;}return null;}\nfunction ageGest(p){const total=gestationalDaysOn(p,today());if(total!==null)return {weeks:Math.floor(total/7),days:total%7};if(p.weeks!==""&&p.weeks!=null)return {weeks:Number(p.weeks),days:Number(p.days||0)};return null;}
 function trimester(a){return !a?"":a.weeks<14?"1":a.weeks<28?"2":"3";}
 function dateBR(v){if(!v)return "Não informado";const [y,m,d]=v.split("-");return d+"/"+m+"/"+y;}
 function showDialog(d){d.showModal();}
@@ -43,7 +43,7 @@ function addDays(date,days){const d=new Date(date+"T12:00:00");d.setDate(d.getDa
 function todayFromDate(d){return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");}
 let clinicClosures=JSON.parse(localStorage.getItem("gestantesClinicClosures")||"[]");
 function nextClinicDate(date,weekday){let d=new Date(date+"T12:00:00");const delta=(weekday-d.getDay()+7)%7;d.setDate(d.getDate()+delta);let result=todayFromDate(d);while(clinicClosures.some(x=>x.date===result)){d.setDate(d.getDate()+7);result=todayFromDate(d);}return result;}
-function gestWeeksOn(p,date){if(!p.dum)return null;const diff=Math.floor((new Date(date+"T12:00:00")-new Date(p.dum+"T12:00:00"))/86400000);return diff<0?null:Math.floor(diff/7);}
+function gestWeeksOn(p,date){const total=gestationalDaysOn(p,date);return total===null?null:Math.floor(total/7);}
 function intervalDays(weeks){return weeks===null?28:weeks<28?28:weeks<36?14:7;}
 function futureAppointments(p,weekday){const now=today(),done=(p.consultas||[]).filter(c=>c.status==="Realizada"&&c.date).map(c=>c.date).sort();let cursor=done.length?done[done.length-1]:null;const result=[];for(let n=0;n<12;n++){const due=cursor?addDays(cursor,intervalDays(gestWeeksOn(p,cursor))):now;const date=nextClinicDate(due,weekday);const gest=gestWeeksOn(p,date);if(p.dpp&&date>p.dpp)break;if(gest!==null&&gest>42)break;result.push({date,weeks:gest,number:n+1});cursor=date;}return result;}
 function renderCalendar(items){const host=$("#prenatalCalendar"),month=$("#calendarMonth"),year=scheduleMonth.getFullYear(),m=scheduleMonth.getMonth();month.textContent=new Intl.DateTimeFormat("pt-BR",{month:"long",year:"numeric"}).format(scheduleMonth);const first=new Date(year,m,1),offset=(first.getDay()+6)%7,days=new Date(year,m+1,0).getDate(),counts={};items.forEach(x=>counts[x.date]=(counts[x.date]||0)+1);const names=["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"];let out=names.map(n=>"<div class=\"calendar-weekday\">"+n+"</div>").join("");for(let j=0;j<offset;j++)out+="<div class=\"calendar-empty\"></div>";for(let n=1;n<=days;n++){const date=[year,String(m+1).padStart(2,"0"),String(n).padStart(2,"0")].join("-"),count=counts[date]||0,capacity=Number(localStorage.getItem("gestantesDailyCapacity"))||0,closed=clinicClosures.some(x=>x.date===date),full=capacity>0&&count>capacity,cl=(date===selectedScheduleDate?" selected":"")+(date===today()?" today":"")+(closed?" closed":"")+(full?" over-capacity":"");out+="<button type=\"button\" class=\"calendar-day"+cl+"\" data-calendar-date=\""+date+"\"><span>"+n+"</span>"+(closed?"<small>UBS fechada</small>":count?"<small>"+count+(capacity?"/"+capacity:"")+" gest.</small>":"")+"</button>";}host.innerHTML=out;}
@@ -53,7 +53,7 @@ function collectScheduleItems(start,end,weekday){
   if(p.status!=="Ativa")continue;
   const manualDate=manualAppointmentDate(p.id);
   const manualItem=manualDate&&manualDate>=now&&manualDate>=start&&manualDate<=end?{date:manualDate,weeks:gestWeeksOn(p,manualDate),number:0}:null;
-  const generated=p.dum?futureAppointments(p,Number(weekday)):[];\n  const appointments=manualDate?[...(manualItem?[manualItem]:[]),...generated.filter(item=>item.date>manualDate)]:generated;
+  const generated=(p.dum||(p.weeks!==""&&p.weeks!=null&&p.gestationalAgeDate))?futureAppointments(p,Number(weekday)):[];\n  const appointments=manualDate?[...(manualItem?[manualItem]:[]),...generated.filter(item=>item.date>manualDate)]:generated;
   for(const item of appointments){
    if(item.date<now||item.date<start||item.date>end)continue;
    const key=p.id+"|"+item.date;if(seen.has(key))continue;seen.add(key);
@@ -129,7 +129,7 @@ function exportReport(){
 $("#reportBtn").addEventListener("click",exportReport);
 patientForm.addEventListener("submit",async e=>{
   e.preventDefault();
-  const data=Object.fromEntries(new FormData(patientForm).entries());
+  const data=Object.fromEntries(new FormData(patientForm).entries());\n  if(data.weeks!==""&&data.weeks!=null&&!data.dum&&!data.gestationalAgeDate)data.gestationalAgeDate=today();
   data.cpf=digits(data.cpf);data.cns=digits(data.cns);
   const existing=editingPatientId?patients.find(x=>x.id===editingPatientId):null;
   const p=existing?{...existing,...data}:{...data,id:crypto.randomUUID(),consultas:[],exames:[],medicamentos:[],encaminhamentos:[],createdAt:new Date().toISOString()};
