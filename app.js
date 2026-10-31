@@ -127,10 +127,16 @@ function exportReport(){
  const from=$("#reportFrom").value,to=$("#reportTo").value;
  if(from&&to&&from>to){alert("A data inicial não pode ser posterior à data final.");return;}
  const inRange=date=>!!date&&(!from||date>=from)&&(!to||date<=to);
- const rows=[["Gestante","CPF","CNS","Comunidade","Risco registrado","Situação","Consultas no período","Exames pendentes","Encaminhamentos em aberto"]];
- const selected=patients.filter(p=>(p.consultas||[]).some(c=>inRange(c.date)||inRange(c.appointmentDate))||(!from&&!to));
- for(const p of selected){const a=(p.consultas||[]).filter(c=>inRange(c.date)||inRange(c.appointmentDate));rows.push([p.name,p.cpf,p.cns,p.community,p.risk,p.status,a.length,(p.exames||[]).filter(x=>["Pendente","Solicitado","Agendado"].includes(x.status)).length,(p.encaminhamentos||[]).filter(x=>["Solicitado","Aguardando","Agendado"].includes(x.status)).length]);}
- const csv="\uFEFF"+rows.map(row=>row.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(";")).join("\r\n");
+ const allDates=!from&&!to;
+ const rows=[["Gestante","Comunidade","Risco registrado","Situação","Consultas no período","Exames pendentes no período","Encaminhamentos em aberto no período"]];
+ const selected=patients.filter(p=>allDates||(p.consultas||[]).some(c=>inRange(c.date)||inRange(c.appointmentDate))||(p.exames||[]).some(x=>inRange(x.date))||(p.encaminhamentos||[]).some(x=>inRange(x.date)));
+ for(const p of selected){
+  const consultations=(p.consultas||[]).filter(c=>allDates||inRange(c.date)||inRange(c.appointmentDate));
+  const exams=(p.exames||[]).filter(x=>(allDates||inRange(x.date))&&["Pendente","Solicitado","Agendado"].includes(x.status));
+  const referrals=(p.encaminhamentos||[]).filter(x=>(allDates||inRange(x.date))&&["Solicitado","Aguardando","Agendado"].includes(x.status));
+  rows.push([p.name,p.community,p.risk,p.status,consultations.length,exams.length,referrals.length]);
+ }
+ const csv="\\uFEFF"+rows.map(row=>row.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(";")).join("\\r\\n");
  const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));const link=document.createElement("a");link.href=url;link.download="relatorio-gestantes-"+(from||"inicio")+"-a-"+(to||today())+".csv";link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 $("#reportBtn").addEventListener("click",exportReport);
