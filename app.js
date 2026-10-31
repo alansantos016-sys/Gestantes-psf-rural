@@ -42,7 +42,7 @@ let scheduleMonth=new Date(new Date().getFullYear(),new Date().getMonth(),1),sel
 function addDays(date,days){const d=new Date(date+"T12:00:00");d.setDate(d.getDate()+days);return todayFromDate(d);}
 function todayFromDate(d){return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");}
 let clinicClosures=JSON.parse(localStorage.getItem("gestantesClinicClosures")||"[]");
-function nextClinicDate(date,weekday){let d=new Date(date+"T12:00:00");const delta=(weekday-d.getDay()+7)%7;d.setDate(d.getDate()+delta);let result=todayFromDate(d),guard=0;while(clinicClosures.some(x=>x.date===result)&&guard<20){d.setDate(d.getDate()+7);result=todayFromDate(d);guard++;}return result;}
+function nextClinicDate(date,weekday){let d=new Date(date+"T12:00:00");const delta=(weekday-d.getDay()+7)%7;d.setDate(d.getDate()+delta);let result=todayFromDate(d);while(clinicClosures.some(x=>x.date===result)){d.setDate(d.getDate()+7);result=todayFromDate(d);}return result;}
 function gestWeeksOn(p,date){if(!p.dum)return null;const diff=Math.floor((new Date(date+"T12:00:00")-new Date(p.dum+"T12:00:00"))/86400000);return diff<0?null:Math.floor(diff/7);}
 function intervalDays(weeks){return weeks===null?28:weeks<28?28:weeks<36?14:7;}
 function futureAppointments(p,weekday){const now=today(),done=(p.consultas||[]).filter(c=>c.status==="Realizada"&&c.date).map(c=>c.date).sort();let cursor=done.length?done[done.length-1]:null;const result=[];for(let n=0;n<12;n++){const due=cursor?addDays(cursor,intervalDays(gestWeeksOn(p,cursor))):now;const date=nextClinicDate(due,weekday);const gest=gestWeeksOn(p,date);if(p.dpp&&date>p.dpp)break;if(gest!==null&&gest>42)break;result.push({date,weeks:gest,number:n+1});cursor=date;}return result;}
