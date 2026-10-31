@@ -89,3 +89,7 @@ Na lista de ocupação diária, a equipe pode escolher uma data manual para a pr
 
 ### Horários individuais das consultas
 Cada consulta marcada pode receber um horário específico. A agenda e a ocupação diária exibem os horários registrados e organizam os atendimentos do dia por horário, deixando os horários não definidos ao final. Ao tentar marcar duas gestantes no mesmo horário e data, o aplicativo apresenta um aviso e permite confirmar a sobreposição quando ela for intencional. A duração e os intervalos entre consultas continuam sob definição da equipe; o sistema não bloqueia horários nem substitui a organização local.
+
+
+### Sugestão de horários
+A equipe pode configurar o início e o fim do período de atendimento e o intervalo entre horários (15, 20, 30, 40, 45 ou 60 minutos). Ao registrar ou editar uma consulta, o aplicativo oferece esses horários como sugestões, mantendo o campo de horário editável para exceções. A configuração é salva no dispositivo e incluída no backup criptografado. O horário final configurado funciona como limite da faixa, não como um horário adicional sugerido.
