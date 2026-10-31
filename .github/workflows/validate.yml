@@ -36,7 +36,7 @@ jobs:
           const match = sw.match(/const FILES=\[(.*?)\]/);
           if (!match) throw new Error('Lista de arquivos do cache não encontrada');
           const files = [...match[1].matchAll(/['"]([^'"]+)['"]/g)].map(x => x[1]);
-          const missing = files.filter(file => !fs.existsSync(file.replace(/^\.\//, '')));
+const missing = files.filter(file => !fs.existsSync(file === './' ? '.' : file.replace(/^\\.\\//, '')));
           if (missing.length) throw new Error('Arquivos ausentes no cache: ' + missing.join(', '));
           console.log('Arquivos do cache encontrados:', files.length);
           NODE
