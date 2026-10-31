@@ -20,7 +20,9 @@ Aplicativo PWA em desenvolvimento para apoiar o acompanhamento pré-natal de uma
 - Registro de encaminhamentos e situação do atendimento.
 - Painel de alertas para consultas próximas/atrasadas, exames e encaminhamentos pendentes.
 - Exportação de relatório geral em CSV.
-- Registro de consultas, exames, medicamentos e encaminhamentos.
+- Registro de consultas, exames, medicamentos, encaminhamentos, parto e acompanhamento puerperal.
+- Registro do tipo e local do parto, idade gestacional e informações do desfecho.
+- Registro de visita domiciliar e consultas puerperais, com alertas administrativos baseados nos prazos descritos na Linha Guia estadual.
 - Interface responsiva e estrutura PWA.
 
 ## Limites clínicos
