@@ -53,8 +53,7 @@
       message("Baixando e verificando o backup criptografado…");
       const result = await DriveBackup.restore(pass);
       if (!confirm("Backup válido com " + result.payload.patients.length + " gestante(s). Confirma substituir os dados locais por esse conteúdo?")) return;
-      await PatientApp.replacePatients(result.payload.patients);
-      PatientApp.restoreBackupSettings(result.payload.settings);
+      await PatientApp.restoreAll(result.payload);
       $("#driveStatus").textContent = "Conectado";
       message("Restauração concluída. Backup criado em " + dateText(result.payload.exportedAt) + ".", "success");
     } catch (error) {
