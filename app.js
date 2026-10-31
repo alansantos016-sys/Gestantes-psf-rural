@@ -145,7 +145,7 @@ patientForm.addEventListener("submit",async e=>{
 });
 recordForm.addEventListener("submit",async e=>{
  e.preventDefault();const p=patients.find(x=>x.id===activePatientId);if(!p||!recordType)return;
- const data=Object.fromEntries(new FormData(recordForm).entries());if(!data.date)data.date=today();
+ const data=Object.fromEntries(new FormData(recordForm).entries());if(!data.date)data.date=today();if(recordType==="consulta"&&data.status==="Agendada"&&data.appointmentDate){manualAppointments[p.id]=data.appointmentDate;saveManualAppointments();}
  p[categories[recordType]]=p[categories[recordType]]||[];
  if(recordType==="parto"&&!editingRecordId){p.status="Parto realizado";}
  if(editingRecordId){const index=p[categories[recordType]].findIndex(x=>x.id===editingRecordId);if(index>=0){const previous=p[categories[recordType]][index],history=previous.rescheduleHistory||[];if(recordType==="consulta"&&previous.appointmentDate&&data.appointmentDate&&previous.appointmentDate!==data.appointmentDate)history.push({from:previous.appointmentDate,to:data.appointmentDate,changedAt:new Date().toISOString()});p[categories[recordType]][index]={...previous,...data,rescheduleHistory:history,updatedAt:new Date().toISOString()};}}
