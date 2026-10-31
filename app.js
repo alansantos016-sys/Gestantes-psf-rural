@@ -168,7 +168,7 @@ patientForm.addEventListener("submit",async e=>{
   }catch(err){alert("Não foi possível salvar o cadastro: "+err.message);}
 });
 recordForm.addEventListener("submit",async e=>{
- e.preventDefault();const p=patients.find(x=>x.id===activePatientId);if(!p||!recordType)return;
+ e.preventDefault();const original=patients.find(x=>x.id===activePatientId);if(!original||!recordType)return;const p=structuredClone(original);
  const data=Object.fromEntries(new FormData(recordForm).entries());if(!data.date)data.date=today();if(recordType==="consulta"&&["Agendada","Remarcada"].includes(data.status)&&data.appointmentDate){const warnings=[],clinicDay=localStorage.getItem("gestantesClinicDay"),appointmentDate=data.appointmentDate;if(appointmentDate<today())warnings.push("A data agendada está no passado.");if(clinicDay!==null&&clinicDay!==""&&String(new Date(appointmentDate+"T12:00:00").getDay())!==clinicDay)warnings.push("A data escolhida não corresponde ao dia semanal de atendimento configurado para a UBS.");if(clinicClosures.some(x=>x.date===appointmentDate))warnings.push("A UBS está marcada como fechada nessa data.");if(data.appointmentTime){const start=localStorage.getItem("gestantesClinicStartTime")||"",end=localStorage.getItem("gestantesClinicEndTime")||"",interval=Number(localStorage.getItem("gestantesAppointmentInterval")||30),toMin=t=>Number(t.slice(0,2))*60+Number(t.slice(3));if(start&&end&&/^([01]\\d|2[0-3]):[0-5]\\d$/.test(start)&&/^([01]\\d|2[0-3]):[0-5]\\d$/.test(end)){const t=toMin(data.appointmentTime),s=toMin(start),f=toMin(end);if(t<s||t>=f)warnings.push("O horário está fora da faixa de atendimento configurada.");else if([15,20,30,40,45,60].includes(interval)&&(t-s)%interval!==0)warnings.push("O horário não coincide com os intervalos configurados.");}}if(warnings.length&&!confirm("Atenção ao agendamento:\\n\\n• "+warnings.join("\\n• ")+"\\n\\nDeseja salvar mesmo assim?"))return;}if(recordType==="consulta"&&["Agendada","Remarcada"].includes(data.status)&&data.appointmentDate&&data.appointmentTime){const conflict=patients.flatMap(person=>(person.consultas||[]).filter(c=>(person.id+"|"+c.id)!==(p.id+"|"+(editingRecordId||""))&&isActiveAppointment(c)&&c.appointmentDate===data.appointmentDate&&c.appointmentTime===data.appointmentTime).map(c=>({name:person.name})));if(conflict.length&&!confirm("Já existe consulta marcada para "+data.appointmentTime+" em "+dateBR(data.appointmentDate)+" ("+conflict.map(x=>x.name).join(", ")+"). Deseja manter o mesmo horário?"))return;}const priorRecord=editingRecordId?(p[categories[recordType]]||[]).find(x=>x.id===editingRecordId):null;
  p[categories[recordType]]=p[categories[recordType]]||[];
  if(recordType==="parto"&&!editingRecordId){p.status="Parto realizado";}
@@ -176,6 +176,7 @@ recordForm.addEventListener("submit",async e=>{
  else p[categories[recordType]].push({id:crypto.randomUUID(),...data,createdAt:new Date().toISOString()});
  try{
   await persist(p);
+  const patientIndex=patients.findIndex(x=>x.id===p.id);if(patientIndex>=0)patients[patientIndex]=p;
   if(recordType==="consulta"){
    const bookedDates=(p.consultas||[]).filter(c=>isActiveAppointment(c)).map(c=>c.appointmentDate).sort();
    const latestBooked=bookedDates.length?bookedDates[bookedDates.length-1]:"";
