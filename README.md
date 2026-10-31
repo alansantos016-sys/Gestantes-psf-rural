@@ -77,3 +77,7 @@ O backup criptografado inclui o dia semanal de atendimento, o limite diário e a
 
 ### Capacidade da agenda
 A contagem diária considera tanto as previsões de consultas quanto os atendimentos já registrados como agendados. Quando uma previsão e um agendamento correspondem à mesma gestante e data, são contados uma única vez. Agendamentos manuais em outras datas também entram na contagem.
+
+
+### Ocupação por dia
+A agenda exibe, por data do mês visível, as gestantes previstas e as que já possuem consulta marcada, indicando o limite configurado e as vagas restantes. O botão “Ver dia” filtra a agenda para a data selecionada. Se a quantidade exceder o limite, o dia recebe um destaque. O limite é um alerta administrativo e não substitui a avaliação da equipe.
