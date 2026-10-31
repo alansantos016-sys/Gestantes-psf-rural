@@ -40,3 +40,13 @@ O aplicativo não é prontuário eletrônico oficial nem sistema da Secretaria M
 
 ## Execução
 Hospedar em HTTPS. O PWA utiliza IndexedDB no navegador do dispositivo. Limpar os dados do navegador pode apagar os registros locais; a rotina de backup será desenvolvida em etapa posterior.
+
+
+## Google Drive: configuração e limites
+A integração usa o cliente OAuth Web configurado no Google Cloud e o escopo `drive.appdata`, limitado à área privada deste aplicativo no Drive. O token de acesso permanece apenas em memória e pode precisar ser autorizado novamente após recarregar a página ou expirar.
+
+O envio e a restauração são manuais. O arquivo enviado é criptografado antes de sair do navegador. A senha de criptografia deve ter pelo menos 12 caracteres, precisa ser guardada fora do aplicativo e não pode ser recuperada pelo sistema. Use a mesma senha em todos os aparelhos. Se a senha for perdida, o backup não poderá ser descriptografado.
+
+A restauração substitui os registros locais do dispositivo atual. Não existe mesclagem automática de alterações entre aparelhos nem sincronização em tempo real nesta versão. Antes de restaurar, faça backup do aparelho se houver dados locais que queira preservar. A primeira autorização exige que a conta Google esteja cadastrada como usuário de teste na seção Público do Google Auth Platform enquanto o app estiver em modo de teste.
+
+A criptografia do backup no Drive não protege os dados que permanecem no IndexedDB do navegador. Portanto, mantenha o aviso de uso com dados fictícios até implementar autenticação local, criptografia em repouso, auditoria, recuperação de acesso e validação institucional/LGPD.
