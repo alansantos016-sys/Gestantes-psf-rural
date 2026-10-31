@@ -34,7 +34,7 @@
       const repeated = prompt("Digite novamente a senha para confirmar.");
       if (pass !== repeated) { alert("As senhas não coincidem. Nenhum backup foi enviado."); return; }
       message("Criptografando e enviando o backup…");
-      const result = await DriveBackup.upload(patients, pass);
+      const result = await DriveBackup.upload(patients, pass, PatientApp.getBackupSettings());
       $("#driveStatus").textContent = "Conectado";
       message("Backup criptografado enviado em " + dateText(result.file.modifiedTime) + ". Guarde a senha: ela não fica salva no aplicativo.", "success");
     } catch (error) {
@@ -53,7 +53,7 @@
       message("Baixando e verificando o backup criptografado…");
       const result = await DriveBackup.restore(pass);
       if (!confirm("Backup válido com " + result.payload.patients.length + " gestante(s). Confirma substituir os dados locais por esse conteúdo?")) return;
-      await PatientApp.replacePatients(result.payload.patients);
+      await PatientApp.replacePatients(result.payload.patients);\n      PatientApp.restoreBackupSettings(result.payload.settings);
       $("#driveStatus").textContent = "Conectado";
       message("Restauração concluída. Backup criado em " + dateText(result.payload.exportedAt) + ".", "success");
     } catch (error) {
