@@ -183,10 +183,14 @@ recordForm.addEventListener("submit",async e=>{
    const currentManual=manualAppointments[p.id]||"";
    if(latestBooked)manualAppointments[p.id]=latestBooked;
    else if(priorRecord?.appointmentDate&&currentManual===priorRecord.appointmentDate)delete manualAppointments[p.id];
-   saveManualAppointments();
+   try {
+    saveManualAppointments();
+   } catch(scheduleError) {
+    alert("O registro foi salvo, mas não foi possível atualizar a data auxiliar da agenda neste aparelho. Confira a agenda e tente salvar o backup novamente. Detalhe: "+scheduleError.message);
+   }
   }
   editingRecordId=null;closeById("recordDialog");renderProfile();render();
- }catch(err){alert("Não foi possível salvar o registro: "+err.message);}
+ }catch(err){alert("Não foi possível salvar o registro no banco local: "+err.message);}
 });
 function newPatient(){editingPatientId=null;patientForm.reset();$("#patientDialog .dialog-head h2").textContent="Identificação e histórico";$("#patientDialog button[type=submit]").textContent="Salvar cadastro";showDialog(patientDialog);}
 $("#newBtn").addEventListener("click",newPatient);$("#emptyNewBtn").addEventListener("click",newPatient);
