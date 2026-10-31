@@ -73,3 +73,7 @@ A criptografia do backup no Drive não protege os dados que permanecem no Indexe
 
 ### Backup das configurações da agenda
 O backup criptografado inclui o dia semanal de atendimento, o limite diário e as exceções de funcionamento da UBS. Ao restaurar um backup, essas configurações também são recuperadas. Backups antigos que não contêm essas configurações restauram a agenda sem essas preferências.
+
+
+### Capacidade da agenda
+A contagem diária considera tanto as previsões de consultas quanto os atendimentos já registrados como agendados. Quando uma previsão e um agendamento correspondem à mesma gestante e data, são contados uma única vez. Agendamentos manuais em outras datas também entram na contagem.
