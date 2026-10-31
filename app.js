@@ -32,7 +32,7 @@ $$("[data-add]").forEach(b=>b.addEventListener("click",()=>startRecord(b.dataset
 $$("[data-close]").forEach(b=>b.addEventListener("click",()=>closeById(b.dataset.close)));
 ["#searchInput","#riskFilter","#trimesterFilter","#statusFilter"].forEach(s=>$(s).addEventListener("input",render));
 $("#patientForm [name=cpf]").addEventListener("input",e=>{let v=digits(e.target.value).slice(0,11);if(v.length>9)v=v.replace(/(\d{3})(\d{3})(\d{3})(\d{0,2})/,"$1.$2.$3-$4");else if(v.length>6)v=v.replace(/(\d{3})(\d{3})(\d{0,3})/,"$1.$2.$3");else if(v.length>3)v=v.replace(/(\d{3})(\d{0,3})/,"$1.$2");e.target.value=v;});
-async function init(){try{patients=await PatientStore.all();patients.forEach(p=>{p.consultas??=[];p.exames??=[];p.medicamentos??=[];p.encaminhamentos??=[];});render();}catch(e){alert("Erro ao abrir os cadastros locais: "+e.message);}}
+window.PatientApp={getPatients:()=>patients,replacePatients:async items=>{await PatientStore.replaceAll(items);patients=items;patients.forEach(p=>{p.consultas??=[];p.exames??=[];p.medicamentos??=[];p.encaminhamentos??=[];});render();}};\nasync function init(){try{patients=await PatientStore.all();patients.forEach(p=>{p.consultas??=[];p.exames??=[];p.medicamentos??=[];p.encaminhamentos??=[];});render();}catch(e){alert("Erro ao abrir os cadastros locais: "+e.message);}}
 init();
 let installPrompt;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installPrompt=e;$("#installBtn").hidden=false;});$("#installBtn").addEventListener("click",async()=>{if(!installPrompt)return;installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;$("#installBtn").hidden=true;});
 if("serviceWorker"in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("sw.js").catch(()=>{});
