@@ -68,4 +68,8 @@ A criptografia do backup no Drive não protege os dados que permanecem no Indexe
 - Permite configurar um limite de gestantes por dia (1 a 50) ou deixar sem limite.
 - O calendário mostra a quantidade prevista por dia em relação ao limite configurado e destaca os dias acima da capacidade.
 - O aviso é administrativo e não impede o registro de consultas. A equipe deve avaliar prioridades clínicas e necessidades individuais.
-- Dia de atendimento, exceções e limite diário são configurações locais do navegador e não são incluídos no backup criptografado atual.
+- Dia de atendimento, exceções e limite diário são configurações locais do navegador e são incluídos no backup criptografado e restaurados junto com os cadastros.
+
+
+### Backup das configurações da agenda
+O backup criptografado inclui o dia semanal de atendimento, o limite diário e as exceções de funcionamento da UBS. Ao restaurar um backup, essas configurações também são recuperadas. Backups antigos que não contêm essas configurações restauram a agenda sem essas preferências.
