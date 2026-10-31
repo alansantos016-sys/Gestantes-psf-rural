@@ -33,10 +33,17 @@ jobs:
           node - <<'NODE'
           const fs = require('fs');
           const sw = fs.readFileSync('sw.js', 'utf8');
-          const match = sw.match(/const FILES=\[(.*?)\]/);
-          if (!match) throw new Error('Lista de arquivos do cache não encontrada');
-          const files = [...match[1].matchAll(/['"]([^'"]+)['"]/g)].map(x => x[1]);
-const missing = files.filter(file => !fs.existsSync(file === './' ? '.' : file.replace(/^\\.\\//, '')));
+          const marker = 'const FILES=';
+          const start = sw.indexOf(marker);
+          if (start < 0) throw new Error('Lista de arquivos do cache não encontrada');
+          const arrayStart = sw.indexOf('[', start + marker.length);
+          const arrayEnd = sw.indexOf(']', arrayStart);
+          if (arrayStart < 0 || arrayEnd < 0) throw new Error('Lista de arquivos do cache inválida');
+          const files = JSON.parse(sw.slice(arrayStart, arrayEnd + 1));
+          const missing = files.filter(file => {
+            const path = file === './' ? '.' : (file.startsWith('./') ? file.slice(2) : file);
+            return !fs.existsSync(path);
+          });
           if (missing.length) throw new Error('Arquivos ausentes no cache: ' + missing.join(', '));
           console.log('Arquivos do cache encontrados:', files.length);
           NODE
