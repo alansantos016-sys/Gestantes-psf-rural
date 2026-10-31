@@ -85,3 +85,7 @@ A agenda exibe, por data do mês visível, as gestantes previstas e as que já p
 
 ### Ajuste manual de data na ocupação
 Na lista de ocupação diária, a equipe pode escolher uma data manual para a próxima consulta prevista de uma gestante e salvar a alteração. As previsões automáticas seguintes são mantidas após a nova data. Consultas já registradas como agendadas devem ser alteradas pelo botão “Reagendar”, para preservar o histórico. As datas manuais são incluídas no backup criptografado junto das demais configurações da agenda.
+
+
+### Horários individuais das consultas
+Cada consulta marcada pode receber um horário específico. A agenda e a ocupação diária exibem os horários registrados e organizam os atendimentos do dia por horário, deixando os horários não definidos ao final. Ao tentar marcar duas gestantes no mesmo horário e data, o aplicativo apresenta um aviso e permite confirmar a sobreposição quando ela for intencional. A duração e os intervalos entre consultas continuam sob definição da equipe; o sistema não bloqueia horários nem substitui a organização local.
