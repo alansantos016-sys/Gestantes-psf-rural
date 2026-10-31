@@ -3,7 +3,8 @@ const patientDialog=$("#patientDialog"),patientForm=$("#patientForm"),profileDia
 let patients=[],activePatientId=null,activeTab="resumo",recordType=null,editingPatientId=null,editingRecordId=null;
 const categories={consulta:"consultas",exame:"exames",medicamento:"medicamentos",encaminhamento:"encaminhamentos",parto:"partos",puerperio:"puerperio"};
 const MANUAL_APPOINTMENTS_KEY="gestantesManualAppointments";
-let manualAppointments=JSON.parse(localStorage.getItem(MANUAL_APPOINTMENTS_KEY)||"{}");
+function readManualAppointments(){try{const value=JSON.parse(localStorage.getItem(MANUAL_APPOINTMENTS_KEY)||"{}");return value&&typeof value==="object"&&!Array.isArray(value)?value:{};}catch{return {};}}
+let manualAppointments=readManualAppointments();
 function saveManualAppointments(){localStorage.setItem(MANUAL_APPOINTMENTS_KEY,JSON.stringify(manualAppointments));}
 function manualAppointmentDate(patientId){return manualAppointments[patientId]||"";}
 
