@@ -2,6 +2,11 @@ const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const patientDialog=$("#patientDialog"),patientForm=$("#patientForm"),profileDialog=$("#profileDialog"),recordDialog=$("#recordDialog"),recordForm=$("#recordForm");
 let patients=[],activePatientId=null,activeTab="resumo",recordType=null,editingPatientId=null,editingRecordId=null;
 const categories={consulta:"consultas",exame:"exames",medicamento:"medicamentos",encaminhamento:"encaminhamentos",parto:"partos",puerperio:"puerperio"};
+const MANUAL_APPOINTMENTS_KEY="gestantesManualAppointments";
+let manualAppointments=JSON.parse(localStorage.getItem(MANUAL_APPOINTMENTS_KEY)||"{}");
+function saveManualAppointments(){localStorage.setItem(MANUAL_APPOINTMENTS_KEY,JSON.stringify(manualAppointments));}
+function manualAppointmentDate(patientId){return manualAppointments[patientId]||"";}
+
 const labels={consulta:"Consulta",exame:"Exame",medicamento:"Medicamento",encaminhamento:"Encaminhamento",parto:"Parto",puerperio:"Puerpério"};
 const digits=v=>(v||"").replace(/\D/g,"");
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -45,11 +50,11 @@ function collectScheduleItems(start,end,weekday){
  const items=[],seen=new Set(),now=today();
  for(const p of patients){
   if(p.status!=="Ativa")continue;
-  for(const item of p.dum?futureAppointments(p,Number(weekday)):[]){
+  const manualDate=manualAppointmentDate(p.id);\n  const manualItem=manualDate&&manualDate>=now&&manualDate>=start&&manualDate<=end?{date:manualDate,weeks:gestWeeksOn(p,manualDate),number:0}:null;\n  const generated=p.dum?futureAppointments(p,Number(weekday)):[];\n  for(const item of (manualItem?[manualItem]:generated)){
    if(item.date<now||item.date<start||item.date>end)continue;
    const key=p.id+"|"+item.date;if(seen.has(key))continue;seen.add(key);
    const booked=(p.consultas||[]).find(c=>c.status==="Agendada"&&c.appointmentDate===item.date);
-   items.push({...item,name:p.name,id:p.id,risk:p.risk||"Não avaliado",booked:!!booked,recordId:booked?.id});
+   items.push({...item,name:p.name,id:p.id,risk:p.risk||"Não avaliado",booked:!!booked,recordId:booked?.id,manual:!!manualItem});
   }
   for(const c of p.consultas||[]){
    const date=c.appointmentDate;
