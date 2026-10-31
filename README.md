@@ -62,3 +62,10 @@ O envio e a restauração são manuais. O arquivo enviado é criptografado antes
 A restauração substitui os registros locais do dispositivo atual. Não existe mesclagem automática de alterações entre aparelhos nem sincronização em tempo real nesta versão. Antes de restaurar, faça backup do aparelho se houver dados locais que queira preservar. A primeira autorização exige que a conta Google esteja cadastrada como usuário de teste na seção Público do Google Auth Platform enquanto o app estiver em modo de teste.
 
 A criptografia do backup no Drive não protege os dados que permanecem no IndexedDB do navegador. Portanto, mantenha o aviso de uso com dados fictícios até implementar autenticação local, criptografia em repouso, auditoria, recuperação de acesso e validação institucional/LGPD.
+
+
+### Capacidade diária da agenda
+- Permite configurar um limite de gestantes por dia (1 a 50) ou deixar sem limite.
+- O calendário mostra a quantidade prevista por dia em relação ao limite configurado e destaca os dias acima da capacidade.
+- O aviso é administrativo e não impede o registro de consultas. A equipe deve avaliar prioridades clínicas e necessidades individuais.
+- Dia de atendimento, exceções e limite diário são configurações locais do navegador e não são incluídos no backup criptografado atual.
