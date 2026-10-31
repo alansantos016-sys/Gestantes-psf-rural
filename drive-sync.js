@@ -127,6 +127,14 @@
     if (new Set(ids).size !== ids.length) throw new Error("O backup contém gestantes com identificadores duplicados. A restauração foi cancelada para evitar sobrescrever registros.");
     const collections = ["consultas", "exames", "medicamentos", "encaminhamentos", "partos", "puerperio"];
     if (!payload.patients.every(p => collections.every(key => p[key] === undefined || Array.isArray(p[key])))) throw new Error("O backup contém uma lista de registros em formato inválido.");
+    for (const patient of payload.patients) {
+      for (const key of collections) {
+        const records = patient[key] || [];
+        if (!records.every(record => record && typeof record === "object" && !Array.isArray(record))) throw new Error("O backup contém um registro inválido na seção " + key + ".");
+        const recordIds = records.filter(record => typeof record.id === "string" && record.id.trim()).map(record => record.id);
+        if (new Set(recordIds).size !== recordIds.length) throw new Error("O backup contém registros duplicados na seção " + key + " da gestante " + patient.name + ".");
+      }
+    }
     return payload;
   }
 
