@@ -155,7 +155,7 @@ patientForm.addEventListener("submit",async e=>{
   }
   data.cpf=digits(data.cpf);data.cns=digits(data.cns);
   const existing=editingPatientId?patients.find(x=>x.id===editingPatientId):null;
-  const p=existing?{...existing,...data}:{...data,id:crypto.randomUUID(),consultas:[],exames:[],medicamentos:[],encaminhamentos:[],createdAt:new Date().toISOString()};
+  const p=existing?{...existing,...data,consultas:existing.consultas||[],exames:existing.exames||[],medicamentos:existing.medicamentos||[],encaminhamentos:existing.encaminhamentos||[],partos:existing.partos||[],puerperio:existing.puerperio||[]}:{...data,id:crypto.randomUUID(),consultas:[],exames:[],medicamentos:[],encaminhamentos:[],partos:[],puerperio:[],createdAt:new Date().toISOString()};
   try{
     await persist(p);
     if(existing){const index=patients.findIndex(x=>x.id===existing.id);patients[index]=p;}
