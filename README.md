@@ -13,6 +13,8 @@ Aplicativo PWA em desenvolvimento para apoiar o acompanhamento pré-natal de uma
 - Cálculo aproximado da idade gestacional pela DUM ou semanas/dias.
 - Ficha individual com resumo e histórico.
 - Histórico de consultas, incluindo agendamentos e situação.
+- Edição de consultas, exames, medicamentos e encaminhamentos já registrados.
+- Exportação de relatório CSV com filtro por período de datas, considerando consultas realizadas ou agendadas no intervalo.
 - Registro de exames e sinalização dos que estão pendentes.
 - Registro de medicamentos conforme prescrição informada, sem sugerir ou alterar doses.
 - Registro de encaminhamentos e situação do atendimento.
