@@ -4,6 +4,7 @@ Aplicativo PWA em desenvolvimento para apoiar o acompanhamento pré-natal de uma
 
 ## Funcionalidades implementadas
 - Cadastro de identificação e contato.
+- Edição dos dados cadastrais da gestante, preservando o histórico de consultas, exames, medicamentos e encaminhamentos.
 - Dados obstétricos iniciais: DUM, DPP, gestações, partos, abortos, prematuridade prévia e gestação múltipla.
 - Histórico clínico: condições preexistentes, cirurgias/internações, medicamentos relatados, alergias e histórico familiar.
 - Armazenamento persistente local com IndexedDB.
