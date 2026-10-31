@@ -133,6 +133,14 @@ patientForm.addEventListener("submit",async e=>{
   e.preventDefault();
   const data=Object.fromEntries(new FormData(patientForm).entries());
   if(data.weeks!==""&&data.weeks!=null&&!data.dum&&!data.gestationalAgeDate)data.gestationalAgeDate=today();
+  if(data.gestationalAgeDate&&data.gestationalAgeDate>today()){alert("A data de referência da idade gestacional não pode estar no futuro.");return;}
+  if(data.dum&&data.dpp&&data.dpp<data.dum){alert("A DPP não pode ser anterior à DUM. Confira as datas.");return;}
+  if(data.dum&&data.dpp){
+    const expected=new Date(data.dum+"T12:00:00");expected.setDate(expected.getDate()+280);
+    const expectedDpp=[expected.getFullYear(),String(expected.getMonth()+1).padStart(2,"0"),String(expected.getDate()).padStart(2,"0")].join("-");
+    const diff=Math.abs(Math.round((new Date(data.dpp+"T12:00:00")-expected)/86400000));
+    if(diff>14&&!confirm("A DPP informada difere em mais de 14 dias da estimativa calculada pela DUM (40 semanas). Confirme se deseja manter a DPP informada."))return;
+  }
   data.cpf=digits(data.cpf);data.cns=digits(data.cns);
   const existing=editingPatientId?patients.find(x=>x.id===editingPatientId):null;
   const p=existing?{...existing,...data}:{...data,id:crypto.randomUUID(),consultas:[],exames:[],medicamentos:[],encaminhamentos:[],createdAt:new Date().toISOString()};
