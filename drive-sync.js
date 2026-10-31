@@ -88,11 +88,11 @@
     );
   }
 
-  async function encryptBackup(patients, passphrase) {
+  async function encryptBackup(patients, passphrase, settings = {}) {
     const salt = crypto.getRandomValues(new Uint8Array(16));
     const iv = crypto.getRandomValues(new Uint8Array(12));
     const key = await deriveKey(passphrase, salt);
-    const payload = { format: "gestantes-psf-rural-backup", version: 1, exportedAt: new Date().toISOString(), patients };
+    const payload = { format: "gestantes-psf-rural-backup", version: 1, exportedAt: new Date().toISOString(), patients, settings };
     const encrypted = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, new TextEncoder().encode(JSON.stringify(payload)));
     return JSON.stringify({
       format: "gestantes-psf-rural-encrypted",
