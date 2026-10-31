@@ -42,6 +42,25 @@ function gestWeeksOn(p,date){if(!p.dum)return null;const diff=Math.floor((new Da
 function intervalDays(weeks){return weeks===null?28:weeks<28?28:weeks<36?14:7;}
 function futureAppointments(p,weekday){const now=today(),done=(p.consultas||[]).filter(c=>c.status==="Realizada"&&c.date).map(c=>c.date).sort();let cursor=done.length?done[done.length-1]:null;const result=[];for(let n=0;n<12;n++){const due=cursor?addDays(cursor,intervalDays(gestWeeksOn(p,cursor))):now;const date=nextClinicDate(due,weekday);const gest=gestWeeksOn(p,date);if(p.dpp&&date>p.dpp)break;if(gest!==null&&gest>42)break;result.push({date,weeks:gest,number:n+1});cursor=date;}return result;}
 function renderCalendar(items){const host=$("#prenatalCalendar"),month=$("#calendarMonth"),year=scheduleMonth.getFullYear(),m=scheduleMonth.getMonth();month.textContent=new Intl.DateTimeFormat("pt-BR",{month:"long",year:"numeric"}).format(scheduleMonth);const first=new Date(year,m,1),offset=(first.getDay()+6)%7,days=new Date(year,m+1,0).getDate(),counts={};items.forEach(x=>counts[x.date]=(counts[x.date]||0)+1);const names=["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"];let out=names.map(n=>"<div class=\"calendar-weekday\">"+n+"</div>").join("");for(let j=0;j<offset;j++)out+="<div class=\"calendar-empty\"></div>";for(let n=1;n<=days;n++){const date=[year,String(m+1).padStart(2,"0"),String(n).padStart(2,"0")].join("-"),count=counts[date]||0,capacity=Number(localStorage.getItem("gestantesDailyCapacity"))||0,closed=clinicClosures.some(x=>x.date===date),full=capacity>0&&count>capacity,cl=(date===selectedScheduleDate?" selected":"")+(date===today()?" today":"")+(closed?" closed":"")+(full?" over-capacity":"");out+="<button type=\"button\" class=\"calendar-day"+cl+"\" data-calendar-date=\""+date+"\"><span>"+n+"</span>"+(closed?"<small>UBS fechada</small>":count?"<small>"+count+(capacity?"/"+capacity:"")+" gest.</small>":"")+"</button>";}host.innerHTML=out;}
+function collectScheduleItems(start,end,weekday){
+ const items=[],seen=new Set(),now=today();
+ for(const p of patients){
+  if(p.status!=="Ativa")continue;
+  for(const item of p.dum?futureAppointments(p,Number(weekday)):[]){
+   if(item.date<now||item.date<start||item.date>end)continue;
+   const key=p.id+"|"+item.date;if(seen.has(key))continue;seen.add(key);
+   const booked=(p.consultas||[]).find(c=>c.status==="Agendada"&&c.appointmentDate===item.date);
+   items.push({...item,name:p.name,id:p.id,risk:p.risk||"Não avaliado",booked:!!booked,recordId:booked?.id});
+  }
+  for(const c of p.consultas||[]){
+   const date=c.appointmentDate;
+   if(c.status!=="Agendada"||!date||date<now||date<start||date>end)continue;
+   const key=p.id+"|"+date;if(seen.has(key))continue;seen.add(key);
+   items.push({date,name:p.name,id:p.id,risk:p.risk||"Não avaliado",booked:true,recordId:c.id,title:c.title||"Consulta pré-natal",weeks:null});
+  }
+ }
+ return items.sort((x,y)=>x.date.localeCompare(y.date)||x.name.localeCompare(y.name));
+}
 function renderSchedule(){
  const day=$("#clinicDay").value,host=$("#futureSchedule"),overdue=$("#overdueSchedule"),notice=$("#scheduleNotice");
  if(day===""){notice.textContent="Selecione o dia de atendimento para calcular a agenda.";host.innerHTML="";overdue.innerHTML="";return;}
@@ -52,12 +71,17 @@ function renderSchedule(){
  for(const p of patients){if(p.status!=="Ativa")continue;for(const c of p.consultas||[]){if(c.status==="Agendada"&&c.appointmentDate&&c.appointmentDate<now)late.push({id:p.id,recordId:c.id,name:p.name,date:c.appointmentDate,title:c.title||"Consulta pré-natal"});}}
  late.sort((x,y)=>x.date.localeCompare(y.date));
  overdue.innerHTML=late.length?'<h3 class="schedule-subtitle">Consultas atrasadas</h3>'+late.map(x=>'<article class="schedule-item overdue"><div><strong>'+esc(x.name)+'</strong><p>'+esc(x.title)+' · Data prevista: '+dateBR(x.date)+'</p></div><span class="pill">Atrasada</span><button type="button" class="secondary" data-reschedule-patient="'+esc(x.id)+'" data-reschedule-record="'+esc(x.recordId)+'">Reagendar</button></article>').join(""):"";
- const list=[];
- for(const p of patients){if(p.status!=="Ativa"||!p.dum)continue;for(const item of futureAppointments(p,Number(day))){if(item.date<now||item.date>endDate||(view==="week"&&item.date<weekStart)||(selectedScheduleDate&&item.date!==selectedScheduleDate))continue;const booked=(p.consultas||[]).find(c=>c.status==="Agendada"&&c.appointmentDate===item.date);list.push({...item,name:p.name,id:p.id,risk:p.risk||"Não avaliado",booked:!!booked,recordId:booked?.id});}}
- list.sort((x,y)=>x.date.localeCompare(y.date)||x.name.localeCompare(y.name));
- const calendarItems=[];for(const p of patients){if(p.status!=="Ativa"||!p.dum)continue;for(const item of futureAppointments(p,Number(day))){const date=item.date;if(date.slice(0,7)===[scheduleMonth.getFullYear(),String(scheduleMonth.getMonth()+1).padStart(2,"0")].join("-")&&date>=now){calendarItems.push({date});}}}renderCalendar(calendarItems);const capacity=Number(localStorage.getItem("gestantesDailyCapacity"))||0,dayCounts={};calendarItems.forEach(x=>dayCounts[x.date]=(dayCounts[x.date]||0)+1);const overloaded=capacity?Object.entries(dayCounts).filter(([date,count])=>count>capacity):[];$("#calendarSelection").textContent=selectedScheduleDate?"Exibindo consultas de "+dateBR(selectedScheduleDate)+". Clique novamente no dia para limpar a seleção.":"Selecione um dia no calendário para filtrar a lista.";
- notice.textContent=(list.length?list.length+" consulta(s) prevista(s) no período.":"Nenhuma consulta prevista neste período.")+(capacity?" Limite diário: "+capacity+" gestantes.":"")+(overloaded.length?" Atenção: "+overloaded.length+" dia(s) acima do limite configurado.":"");
- host.innerHTML=list.map(x=>'<article class="schedule-item"><div><strong>'+esc(x.name)+'</strong><p>'+esc(x.risk)+' · '+(x.weeks===null?"IG não calculada":x.weeks+" semanas na data prevista")+'</p></div><time>'+dateBR(x.date)+'</time>'+(x.booked?'<span class="pill">Agendada</span><button type="button" class="secondary" data-reschedule-patient="'+esc(x.id)+'" data-reschedule-record="'+esc(x.recordId)+'">Reagendar</button>':'<button type="button" class="secondary" data-schedule-patient="'+esc(x.id)+'" data-schedule-date="'+x.date+'">Registrar agendamento</button>')+'</article>').join("");
+ const list=collectScheduleItems(view==="week"?weekStart:now,endDate,day).filter(x=>!selectedScheduleDate||x.date===selectedScheduleDate);
+ const monthStart=[scheduleMonth.getFullYear(),String(scheduleMonth.getMonth()+1).padStart(2,"0"),"01"].join("-");
+ const monthEnd=[scheduleMonth.getFullYear(),String(scheduleMonth.getMonth()+1).padStart(2,"0"),String(new Date(scheduleMonth.getFullYear(),scheduleMonth.getMonth()+1,0).getDate()).padStart(2,"0")].join("-");
+ const calendarItems=collectScheduleItems(monthStart>now?monthStart:now,monthEnd,day);
+ renderCalendar(calendarItems);
+ const capacity=Number(localStorage.getItem("gestantesDailyCapacity"))||0,dayCounts={};
+ calendarItems.forEach(x=>dayCounts[x.date]=(dayCounts[x.date]||0)+1);
+ const overloaded=capacity?Object.entries(dayCounts).filter(([date,count])=>count>capacity):[];
+ $("#calendarSelection").textContent=selectedScheduleDate?"Exibindo consultas de "+dateBR(selectedScheduleDate)+". Clique novamente no dia para limpar a seleção.":"Selecione um dia no calendário para filtrar a lista.";
+ notice.textContent=(list.length?list.length+" consulta(s) prevista(s) ou agendada(s) no período.":"Nenhuma consulta prevista ou agendada neste período.")+(capacity?" Limite diário: "+capacity+" gestantes.":"")+(overloaded.length?" Atenção: "+overloaded.length+" dia(s) acima do limite configurado.":"");
+ host.innerHTML=list.map(x=>'<article class="schedule-item"><div><strong>'+esc(x.name)+'</strong><p>'+esc(x.risk)+' · '+(x.weeks===null?"Consulta registrada":x.weeks+" semanas na data prevista")+'</p></div><time>'+dateBR(x.date)+'</time>'+(x.booked?'<span class="pill">Agendada</span><button type="button" class="secondary" data-reschedule-patient="'+esc(x.id)+'" data-reschedule-record="'+esc(x.recordId)+'">Reagendar</button>':'<button type="button" class="secondary" data-schedule-patient="'+esc(x.id)+'" data-schedule-date="'+x.date+'">Registrar agendamento</button>')+'</article>').join("");
 }
 function renderClinicClosures(){const host=$("#clinicClosuresList");host.innerHTML=clinicClosures.length?clinicClosures.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(x=>'<div class="closure-item"><span><b>'+dateBR(x.date)+'</b> · '+esc(x.reason||"Sem motivo informado")+'</span><button type="button" class="secondary" data-remove-closure="'+x.date+'">Remover</button></div>').join(""):'<p class="muted">Nenhuma exceção cadastrada.</p>';}
 $("#clinicDay").value=localStorage.getItem("gestantesClinicDay")??"";
