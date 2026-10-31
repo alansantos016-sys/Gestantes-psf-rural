@@ -19,11 +19,15 @@ Aplicativo PWA em desenvolvimento para apoiar o acompanhamento pré-natal de uma
 - Registro de medicamentos conforme prescrição informada, sem sugerir ou alterar doses.
 - Registro de encaminhamentos e situação do atendimento.
 - Painel de alertas para consultas próximas/atrasadas, exames e encaminhamentos pendentes.
+- Agenda futura de pré-natal por dia semanal de atendimento da UBS, com estimativa de intervalos mensais até 28 semanas, quinzenais de 28 a 36 semanas e semanais a partir de 36 semanas. As datas são previsões para conferência profissional e não substituem o agendamento clínico.
 - Exportação de relatório geral em CSV.
 - Registro de consultas, exames, medicamentos, encaminhamentos, parto e acompanhamento puerperal.
 - Registro do tipo e local do parto, idade gestacional e informações do desfecho.
 - Registro de visita domiciliar e consultas puerperais, com alertas administrativos baseados nos prazos descritos na Linha Guia estadual.
 - Interface responsiva e estrutura PWA.
+
+## Agenda de pré-natal
+A agenda utiliza a data da última consulta registrada como realizada; se não houver consulta realizada, usa a data atual como referência. Para o cálculo, considera intervalos mensais (28 dias), quinzenais (14 dias) e semanais (7 dias), alinhados ao calendário nacional de acompanhamento pré-natal. A Linha Guia do Paraná disponível na página estadual informa mínimo de sete consultas, com distribuição de pelo menos duas no primeiro trimestre, duas no segundo e três no terceiro, e orienta reavaliação de risco em todos os atendimentos. As datas geradas são sugestões operacionais e devem ser confirmadas pela enfermeira, considerando risco, avaliação clínica, feriados, disponibilidade e pactuações locais. A configuração do dia de atendimento fica salva no navegador/dispositivo e precisa ser refeita em outro aparelho.
 
 ## Limites clínicos
 O risco obstétrico ainda é registrado manualmente. Não existe motor automático de estratificação nesta versão. Não utilizar o aplicativo para decidir condutas clínicas. A implementação automática depende da conferência integral dos critérios estaduais vigentes, documentação de exceções e validação por profissional responsável.
