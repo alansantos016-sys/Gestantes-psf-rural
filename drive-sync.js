@@ -166,5 +166,6 @@
     return findBackup();
   }
 
+  loadGoogleIdentity().catch(() => {});
   window.DriveBackup = { authorize, upload, restore, status };
 })();
