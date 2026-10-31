@@ -126,8 +126,8 @@
     return payload;
   }
 
-  async function upload(patients, passphrase) {
-    const content = await encryptBackup(patients, passphrase);
+  async function upload(patients, passphrase, settings = {}) {
+    const content = await encryptBackup(patients, passphrase, settings);
     const existing = await findBackup();
     const boundary = "gestantesBackup" + crypto.randomUUID().replace(/-/g, "");
     const metadata = existing ? {} : { name: BACKUP_NAME, parents: ["appDataFolder"], mimeType: "application/json" };
