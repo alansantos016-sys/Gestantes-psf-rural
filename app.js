@@ -151,8 +151,18 @@ recordForm.addEventListener("submit",async e=>{
  if(recordType==="parto"&&!editingRecordId){p.status="Parto realizado";}
  if(editingRecordId){const index=p[categories[recordType]].findIndex(x=>x.id===editingRecordId);if(index>=0){const previous=p[categories[recordType]][index],history=previous.rescheduleHistory||[];if(recordType==="consulta"&&previous.appointmentDate!==data.appointmentDate&&(previous.appointmentDate||data.appointmentDate))history.push({from:previous.appointmentDate||"",to:data.appointmentDate||"",changedAt:new Date().toISOString()});p[categories[recordType]][index]={...previous,...data,rescheduleHistory:history,updatedAt:new Date().toISOString()};}}
  else p[categories[recordType]].push({id:crypto.randomUUID(),...data,createdAt:new Date().toISOString()});
- if(recordType==="consulta"){if(data.status==="Agendada"&&data.appointmentDate)manualAppointments[p.id]=data.appointmentDate;else if(priorRecord?.appointmentDate&&manualAppointments[p.id]===priorRecord.appointmentDate)delete manualAppointments[p.id];saveManualAppointments();}
- try{await persist(p);editingRecordId=null;closeById("recordDialog");renderProfile();render();}catch(err){alert("Não foi possível salvar o registro: "+err.message);}
+ try{
+  await persist(p);
+  if(recordType==="consulta"){
+   const bookedDates=(p.consultas||[]).filter(c=>c.status==="Agendada"&&c.appointmentDate).map(c=>c.appointmentDate).sort();
+   const latestBooked=bookedDates.length?bookedDates[bookedDates.length-1]:"";
+   const currentManual=manualAppointments[p.id]||"";
+   if(latestBooked&&(!currentManual||latestBooked>currentManual))manualAppointments[p.id]=latestBooked;
+   else if(!latestBooked&&priorRecord?.appointmentDate&&currentManual===priorRecord.appointmentDate)delete manualAppointments[p.id];
+   saveManualAppointments();
+  }
+  editingRecordId=null;closeById("recordDialog");renderProfile();render();
+ }catch(err){alert("Não foi possível salvar o registro: "+err.message);}
 });
 function newPatient(){editingPatientId=null;patientForm.reset();$("#patientDialog .dialog-head h2").textContent="Identificação e histórico";$("#patientDialog button[type=submit]").textContent="Salvar cadastro";showDialog(patientDialog);}
 $("#newBtn").addEventListener("click",newPatient);$("#emptyNewBtn").addEventListener("click",newPatient);
