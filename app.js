@@ -54,7 +54,8 @@ function collectScheduleItems(start,end,weekday){
   if(p.status!=="Ativa")continue;
   const manualDate=manualAppointmentDate(p.id);
   const manualItem=manualDate&&manualDate>=now&&manualDate>=start&&manualDate<=end?{date:manualDate,weeks:gestWeeksOn(p,manualDate),number:0}:null;
-  const generated=(p.dum||(p.weeks!==""&&p.weeks!=null&&p.gestationalAgeDate))?futureAppointments(p,Number(weekday)):[];\n  const appointments=manualDate?[...(manualItem?[manualItem]:[]),...generated.filter(item=>item.date>manualDate)]:generated;
+  const generated=(p.dum||(p.weeks!==""&&p.weeks!=null&&p.gestationalAgeDate))?futureAppointments(p,Number(weekday)):[];
+  const appointments=manualDate?[...(manualItem?[manualItem]:[]),...generated.filter(item=>item.date>manualDate)]:generated;
   for(const item of appointments){
    if(item.date<now||item.date<start||item.date>end)continue;
    const key=p.id+"|"+item.date;if(seen.has(key))continue;seen.add(key);
