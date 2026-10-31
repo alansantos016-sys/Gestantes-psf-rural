@@ -93,3 +93,7 @@ Cada consulta marcada pode receber um horário específico. A agenda e a ocupaç
 
 ### Sugestão de horários
 A equipe pode configurar o início e o fim do período de atendimento e o intervalo entre horários (15, 20, 30, 40, 45 ou 60 minutos). Ao registrar ou editar uma consulta, o aplicativo oferece esses horários como sugestões, mantendo o campo de horário editável para exceções. A configuração é salva no dispositivo e incluída no backup criptografado. O horário final configurado funciona como limite da faixa, não como um horário adicional sugerido.
+
+
+### Horários disponíveis por data
+Ao escolher a data da consulta, a lista de sugestões considera os agendamentos já registrados para aquele dia e oculta horários ocupados por outras gestantes. O horário da própria consulta permanece disponível ao editar um agendamento. O campo de horário manual continua disponível para exceções, e a validação de conflito permanece ativa ao salvar.
