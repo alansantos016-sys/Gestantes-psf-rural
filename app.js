@@ -11,7 +11,8 @@ const labels={consulta:"Consulta",exame:"Exame",medicamento:"Medicamento",encami
 const digits=v=>(v||"").replace(/\D/g,"");
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const today=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");};
-function gestationalDaysOn(p,date){if(p.dum){const diff=Math.floor((new Date(date+"T12:00:00")-new Date(p.dum+"T12:00:00"))/86400000);return diff>=0?diff:null;}if(p.weeks!==""&&p.weeks!=null&&p.gestationalAgeDate){const elapsed=Math.floor((new Date(date+"T12:00:00")-new Date(p.gestationalAgeDate+"T12:00:00"))/86400000);const total=Number(p.weeks)*7+Number(p.days||0)+elapsed;return total>=0?total:null;}return null;}\nfunction ageGest(p){const total=gestationalDaysOn(p,today());if(total!==null)return {weeks:Math.floor(total/7),days:total%7};if(p.weeks!==""&&p.weeks!=null)return {weeks:Number(p.weeks),days:Number(p.days||0)};return null;}
+function gestationalDaysOn(p,date){if(p.dum){const diff=Math.floor((new Date(date+"T12:00:00")-new Date(p.dum+"T12:00:00"))/86400000);return diff>=0?diff:null;}if(p.weeks!==""&&p.weeks!=null&&p.gestationalAgeDate){const elapsed=Math.floor((new Date(date+"T12:00:00")-new Date(p.gestationalAgeDate+"T12:00:00"))/86400000);const total=Number(p.weeks)*7+Number(p.days||0)+elapsed;return total>=0?total:null;}return null;}
+function ageGest(p){const total=gestationalDaysOn(p,today());if(total!==null)return {weeks:Math.floor(total/7),days:total%7};if(p.weeks!==""&&p.weeks!=null)return {weeks:Number(p.weeks),days:Number(p.days||0)};return null;}
 function trimester(a){return !a?"":a.weeks<14?"1":a.weeks<28?"2":"3";}
 function dateBR(v){if(!v)return "Não informado";const [y,m,d]=v.split("-");return d+"/"+m+"/"+y;}
 function showDialog(d){d.showModal();}
@@ -129,7 +130,8 @@ function exportReport(){
 $("#reportBtn").addEventListener("click",exportReport);
 patientForm.addEventListener("submit",async e=>{
   e.preventDefault();
-  const data=Object.fromEntries(new FormData(patientForm).entries());\n  if(data.weeks!==""&&data.weeks!=null&&!data.dum&&!data.gestationalAgeDate)data.gestationalAgeDate=today();
+  const data=Object.fromEntries(new FormData(patientForm).entries());
+  if(data.weeks!==""&&data.weeks!=null&&!data.dum&&!data.gestationalAgeDate)data.gestationalAgeDate=today();
   data.cpf=digits(data.cpf);data.cns=digits(data.cns);
   const existing=editingPatientId?patients.find(x=>x.id===editingPatientId):null;
   const p=existing?{...existing,...data}:{...data,id:crypto.randomUUID(),consultas:[],exames:[],medicamentos:[],encaminhamentos:[],createdAt:new Date().toISOString()};
