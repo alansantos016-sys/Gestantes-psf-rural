@@ -1,0 +1,42 @@
+name: Validar aplicativo
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v4
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verificar sintaxe JavaScript
+        run: |
+          for file in app.js storage.js drive-sync.js drive-ui.js config.js google-drive.js sw.js; do
+            if [ -f "$file" ]; then
+              echo "Verificando $file"
+              node --check "$file"
+            fi
+          done
+      - name: Validar manifesto e referências do cache
+        run: |
+          node -e "JSON.parse(require('fs').readFileSync('manifest.webmanifest','utf8')); console.log('Manifesto JSON válido')"
+          node - <<'NODE'
+          const fs = require('fs');
+          const sw = fs.readFileSync('sw.js', 'utf8');
+          const match = sw.match(/const FILES=\[(.*?)\]/);
+          if (!match) throw new Error('Lista de arquivos do cache não encontrada');
+          const files = [...match[1].matchAll(/['"]([^'"]+)['"]/g)].map(x => x[1]);
+          const missing = files.filter(file => !fs.existsSync(file.replace(/^\.\//, '')));
+          if (missing.length) throw new Error('Arquivos ausentes no cache: ' + missing.join(', '));
+          console.log('Arquivos do cache encontrados:', files.length);
+          NODE
