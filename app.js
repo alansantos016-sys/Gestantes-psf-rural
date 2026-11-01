@@ -15,7 +15,8 @@ const today=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+
 function gestationalDaysOn(p,date){if(p.dum){const diff=Math.floor((new Date(date+"T12:00:00")-new Date(p.dum+"T12:00:00"))/86400000);return diff>=0?diff:null;}if(p.weeks!==""&&p.weeks!=null&&p.gestationalAgeDate){const elapsed=Math.floor((new Date(date+"T12:00:00")-new Date(p.gestationalAgeDate+"T12:00:00"))/86400000);const total=Number(p.weeks)*7+Number(p.days||0)+elapsed;return total>=0?total:null;}return null;}
 function ageGest(p){const total=gestationalDaysOn(p,today());if(total!==null)return {weeks:Math.floor(total/7),days:total%7};if(p.weeks!==""&&p.weeks!=null)return {weeks:Number(p.weeks),days:Number(p.days||0)};return null;}
 function trimester(a){return !a?"":a.weeks<14?"1":a.weeks<28?"2":"3";}
-function dateBR(v){if(!v)return "Não informado";const [y,m,d]=v.split("-");return d+"/"+m+"/"+y;}\nfunction estimatedDpp(dum){if(!validISODate(dum))return "";const d=new Date(dum+"T12:00:00");d.setDate(d.getDate()+280);return todayFromDate(d);}
+function dateBR(v){if(!v)return "Não informado";const [y,m,d]=v.split("-");return d+"/"+m+"/"+y;}
+function estimatedDpp(dum){if(!validISODate(dum))return "";const d=new Date(dum+"T12:00:00");d.setDate(d.getDate()+280);return todayFromDate(d);}
 function showDialog(d){d.showModal();}
 function closeById(id){const d=document.getElementById(id);if(d?.open)d.close();}
 function validISODate(value){if(typeof value!=="string"||!/^\d{4}-\d{2}-\d{2}$/.test(value))return false;const d=new Date(value+"T12:00:00");return !Number.isNaN(d.getTime())&&todayFromDate(d)===value;}
@@ -143,10 +144,12 @@ function exportReport(){
  const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));const link=document.createElement("a");link.href=url;link.download="relatorio-gestantes-"+(from||"inicio")+"-a-"+(to||today())+".csv";link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 $("#reportBtn").addEventListener("click",exportReport);
-patientForm.elements.dum.addEventListener("change",()=>{const estimate=estimatedDpp(patientForm.elements.dum.value);if(estimate)patientForm.elements.dpp.value=estimate;else if(!patientForm.elements.dum.value)patientForm.elements.dpp.value="";});\npatientForm.addEventListener("submit",async e=>{
+patientForm.elements.dum.addEventListener("change",()=>{const estimate=estimatedDpp(patientForm.elements.dum.value);if(estimate)patientForm.elements.dpp.value=estimate;else if(!patientForm.elements.dum.value)patientForm.elements.dpp.value="";});
+patientForm.addEventListener("submit",async e=>{
   e.preventDefault();
   const data=Object.fromEntries(new FormData(patientForm).entries());
-  if(data.weeks!==""&&data.weeks!=null&&!data.dum&&!data.gestationalAgeDate)data.gestationalAgeDate=today();\n   if(data.dum&&!data.dpp)data.dpp=estimatedDpp(data.dum);
+  if(data.weeks!==""&&data.weeks!=null&&!data.dum&&!data.gestationalAgeDate)data.gestationalAgeDate=today();
+   if(data.dum&&!data.dpp)data.dpp=estimatedDpp(data.dum);
   if(data.gestationalAgeDate&&data.gestationalAgeDate>today()){alert("A data de referência da idade gestacional não pode estar no futuro.");return;}
   if(data.dum&&data.dpp&&data.dpp<data.dum){alert("A DPP não pode ser anterior à DUM. Confira as datas.");return;}
   if(data.dum&&data.dpp){
