@@ -146,12 +146,12 @@ function exportReport(){
  const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));const link=document.createElement("a");link.href=url;link.download="relatorio-gestantes-"+(from||"inicio")+"-a-"+(to||today())+".csv";link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 $("#reportBtn").addEventListener("click",exportReport);
-patientForm.elements.dum.addEventListener("change",()=>{const estimate=estimatedDpp(patientForm.elements.dum.value);if(estimate)patientForm.elements.dpp.value=estimate;else if(!patientForm.elements.dum.value)patientForm.elements.dpp.value="";});
+const updateEstimatedDpp=()=>{const estimate=estimatedDpp(patientForm.elements.dum.value);patientForm.elements.dpp.value=estimate;};\npatientForm.elements.dum.addEventListener("input",updateEstimatedDpp);\npatientForm.elements.dum.addEventListener("change",updateEstimatedDpp);\npatientForm.elements.dum.addEventListener("blur",updateEstimatedDpp);
 patientForm.addEventListener("submit",async e=>{
   e.preventDefault();
   const data=Object.fromEntries(new FormData(patientForm).entries());
   if(data.weeks!==""&&data.weeks!=null&&!data.dum&&!data.gestationalAgeDate)data.gestationalAgeDate=today();
-   if(data.dum&&!data.dpp)data.dpp=estimatedDpp(data.dum);
+   if(data.dum)data.dpp=estimatedDpp(data.dum);
   if(data.gestationalAgeDate&&data.gestationalAgeDate>today()){alert("A data de referência da idade gestacional não pode estar no futuro.");return;}
   if(data.dum&&data.dpp&&data.dpp<data.dum){alert("A DPP não pode ser anterior à DUM. Confira as datas.");return;}
   if(data.dum&&data.dpp){
