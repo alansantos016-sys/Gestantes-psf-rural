@@ -146,7 +146,10 @@ function exportReport(){
  const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));const link=document.createElement("a");link.href=url;link.download="relatorio-gestantes-"+(from||"inicio")+"-a-"+(to||today())+".csv";link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 $("#reportBtn").addEventListener("click",exportReport);
-const updateEstimatedDpp=()=>{const estimate=estimatedDpp(patientForm.elements.dum.value);patientForm.elements.dpp.value=estimate;};\npatientForm.elements.dum.addEventListener("input",updateEstimatedDpp);\npatientForm.elements.dum.addEventListener("change",updateEstimatedDpp);\npatientForm.elements.dum.addEventListener("blur",updateEstimatedDpp);
+const updateEstimatedDpp=()=>{const estimate=estimatedDpp(patientForm.elements.dum.value);patientForm.elements.dpp.value=estimate;};
+patientForm.elements.dum.addEventListener("input",updateEstimatedDpp);
+patientForm.elements.dum.addEventListener("change",updateEstimatedDpp);
+patientForm.elements.dum.addEventListener("blur",updateEstimatedDpp);
 patientForm.addEventListener("submit",async e=>{
   e.preventDefault();
   const data=Object.fromEntries(new FormData(patientForm).entries());
