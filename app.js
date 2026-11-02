@@ -33,7 +33,7 @@ function load(){try{let a=JSON.parse(localStorage.getItem(K)||"{}");return{patie
   for(let guard=0;guard<60&&candidate<=due;guard++){
    candidate=tue(candidate);if(candidate>due)break;let ds=iso(candidate);
    if(!visits.some(r=>r.patientId===p.id&&r.date===ds)){let count=used.get(ds)||0;if(count<10){if(!m.has(ds))m.set(ds,[]);m.get(ds).push({p,manual:false});used.set(ds,count+1)}}
-   let gestWeek=Math.max(0,Math.floor((candidate-base)/604800000)),step=gestWeek<28?28:gestWeek<36?14:7;
+   let gestWeek=Math.max(0,Math.floor((candidate-base)/604800000)),step=p.consultFrequency==="weekly"?7:(gestWeek<28?28:gestWeek<36?14:7);
    candidate=plus(candidate,step);candidate=tue(candidate);
   }
  }
